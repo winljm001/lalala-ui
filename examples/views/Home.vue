@@ -36,3 +36,10 @@ export default {
   }
 };
 </script>
+<style lang="less">
+.home {
+  button {
+    margin-bottom: 24px;
+  }
+}
+</style>
