@@ -4,7 +4,7 @@
     <div class="tmpl">
       <span>菜单1</span>
       <text-particles v-model="isShow">
-        <span>菜单2</span>
+        <span @click="c">{{ string }}</span>
       </text-particles>
       <text-particles v-model="isShow">
         <span>菜单3</span>
@@ -25,13 +25,18 @@ export default {
   name: "home",
   data() {
     return {
-      isShow: true
+      isShow: true,
+      string: "这是很多字"
     };
   },
   methods: {
     change() {
       this.isShow = !this.isShow;
       console.log(this.isShow);
+    },
+    c() {
+      this.string += "添加的字很多000000";
+      console.log("点击了");
     }
   }
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="text-particles" :ref="particlesId">
-    <div class="canvas-wrap" :ref="canvasWrapId">
+    <div class="canvas-wrap" :ref="canvasWrapId" v-show="showCanvas">
       <canvas
         v-for="frame in framesLength"
         :width="eleW"
@@ -36,10 +36,14 @@ export default {
       eleW: 0,
       eleH: 0,
       imageDatas: [],
+      mainCanvas: null,
       isAnimation: false,
       showContent: true,
+      showCanvas: false,
       showDust: false,
-      animationTime: 1000
+      animationTime: 1000,
+      inTimer: null,
+      outTimer: null
     };
   },
   computed: {
@@ -52,10 +56,13 @@ export default {
   },
   watch: {
     value: {
-      handler: function(v) {
+      handler: async function(v) {
         if (v) {
+          this.generateFrames(this.mainCanvas);
           this.fadeIn();
         } else {
+          await this.init();
+          this.generateFrames(this.mainCanvas);
           this.fadeOut();
         }
       }
@@ -63,24 +70,30 @@ export default {
     }
   },
   mounted() {
-    this.init();
+    // this.init();
   },
   methods: {
     // 初始化
     async init() {
+      this.showCanvas = true;
       const mainEle = this.$refs[this.particlesId];
       this.eleW = parseInt(window.getComputedStyle(mainEle).width);
       this.eleH = parseInt(window.getComputedStyle(mainEle).height);
+      await this.initCanvas();
+    },
+    async initCanvas() {
+      const mainEle = this.$refs[this.particlesId];
       try {
-        const $canvas = await html2canvas(mainEle, {
+        this.mainCanvas = await html2canvas(mainEle, {
           allowTaint: true,
           logging: false
         });
-        this.generateFrames($canvas);
+        this.showCanvas = false;
       } catch (error) {
         /* eslint-disable */
         console.error(1,error);
       }
+
     },
     // 初始化点
     generateFrames($canvas) {
@@ -116,6 +129,7 @@ export default {
       
     },
     fadeOut(){
+      this.showCanvas = true;
       // draw on canvas list
       this.imageDatas.map((data, index) => {
         const $c = this.$refs[this.canvasWrapId].children[index];
@@ -131,29 +145,40 @@ export default {
         $c.getContext("2d").putImageData(data, 0, 0);
       });
       this.showDust = true;
-      window.setTimeout(() => {
+      if(this.inTimer){
+        window.clearTimeout(this.inTimer)
+      }
+      this.outTimer=window.setTimeout(() => {
         this.showContent = this.value?true:false;
+        this.showCanvas = false;
       }, this.animationTime);
     },
     fadeIn(){
-      this.imageDatas.map((data, index) => {
-        const $c = this.$refs[this.canvasWrapId].children[index];
-        $c.style.transform = `
-                        rotate(0deg)
-                        translate(0px, 0px)
-                        rotate(0deg)
-                      `;
-        $c.style.opacity = 1;
-      });
-      this.showContent = true;
-      
+      this.showCanvas = true;
       window.setTimeout(() => {
-        this.showDust = this.value?true:false;
-      }, this.animationTime);
+        this.imageDatas.map((data, index) => {
+          const $c = this.$refs[this.canvasWrapId].children[index];
+          
+          $c.style.transform = `
+                          rotate(0deg)
+                          translate(0px, 0px)
+                          rotate(0deg)
+                        `;
+          $c.style.opacity = 1;
+        });
+        this.showContent = true;
+        if(this.outTimer){
+          window.clearTimeout(this.outTimer)
+        }
+        this.inTimer=window.setTimeout(() => {
+          this.showDust = this.value?false:true;
+          this.showCanvas = false;
+        }, this.animationTime);
+      },10)
     }
   }
 };
 </script>
-<style lang="less" scoped>
+<style lang="less">
 @import "./index.less";
 </style>
