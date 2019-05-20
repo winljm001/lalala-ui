@@ -18,3 +18,5 @@ prop:value to control hide or show
     <img alt="Vue logo" src="../assets/logo.png" />
 </text-particles>
 ```
+
+![示例1](https://raw.githubusercontent.com/winljm001/lalala-ui/master/examples/assets/3.gif "示例1")
