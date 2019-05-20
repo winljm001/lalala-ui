@@ -7,6 +7,7 @@ yarn install lalala-ui
 ## to use
 ```
 import lalalaUi from 'lalala-ui'
+import "lalala-ui/lib/lalala-ui.css";
 Vue.use(lalalaUi)
 ```
 ### part1
